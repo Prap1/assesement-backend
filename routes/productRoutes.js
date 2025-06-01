@@ -3,11 +3,11 @@ const router = express.Router();
 const upload = require('../middleware/upload');
 const { protect, adminOnly } = require('../middleware/authMiddleware');
 const {
-  createProduct,
   updateProduct,
   getProducts,
   getProduct,
-  deleteProduct
+  deleteProduct,
+  createProduct
 } = require('../controller/productController');
 
 router.post('/', protect, adminOnly, upload.single('image'), createProduct);

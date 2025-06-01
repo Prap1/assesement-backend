@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_default_secret';
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '30d';
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1d';
 
 // Generate JWT
 const generateToken = (id, role) => {
@@ -12,12 +12,19 @@ const generateToken = (id, role) => {
   });
 };
 
-// @desc    Register a new user
-// @route   POST /api/auth/register
-// @access  Public
+
 const register = async (req, res) => {
   try {
-    const { name, email, password, address, city, state, postalCode } = req.body;
+    const {
+      name,
+      email,
+      password,
+      address,
+      city,
+      state,
+      postalCode,
+      role, // Accept role directly from request
+    } = req.body;
 
     // Validate required fields
     if (!name || !email || !password) {
@@ -53,7 +60,7 @@ const register = async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      role: 'User',
+      role: role || 'User', // Use provided role or default to 'User'
       address: address || '',
       city: city || '',
       state: state || '',
@@ -84,9 +91,6 @@ const register = async (req, res) => {
   }
 };
 
-// @desc    Login user
-// @route   POST /api/auth/login
-// @access  Public
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -123,12 +127,9 @@ const login = async (req, res) => {
   }
 };
 
-// @desc    Logout user / clear cookie
-// @route   POST /api/auth/logout
-// @access  Private
+
 const logout = (req, res) => {
-  // If using cookies:
-  // res.clearCookie('token');
+
   res.json({ message: 'Logged out successfully' });
 };
 

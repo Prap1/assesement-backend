@@ -7,7 +7,7 @@ const authRoutes = require('./routes/authRoutes');
 const productRoutes = require("./routes/productRoutes");
 const orderRoutes = require('./routes/orderRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
-const { handleWebhook } = require('./controllers/paymentController');
+const { handleWebhook } = require('./controller/paymentController');
 const path = require('path');
 
 dotenv.config();

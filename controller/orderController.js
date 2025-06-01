@@ -1,5 +1,6 @@
 const Order = require('../model/order');
 const Product = require('../model/product');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 exports.createOrder = async (req, res) => {
   const { paymentIntentId, productId, quantity } = req.body;
@@ -195,3 +196,72 @@ exports.getAllOrders = async (req, res) => {
     res.status(500).json({ message: 'Failed to get orders', error: error.message });
   }
 };
+
+exports.processOrder = async (req, res) => {
+  const { orderId, paymentIntentId } = req.body;
+
+  console.log('🔄 Process order request:', req.body);
+
+  if (!orderId || !paymentIntentId) {
+    console.warn('⚠️ Missing orderId or paymentIntentId');
+    console.log('orderId', orderId);
+    console.log('paymentIntentId', paymentIntentId);
+    return res.status(400).json({
+      success: false,
+      message: 'Missing required fields (orderId or paymentIntentId)',
+    });
+  }
+
+  try {
+    const order = await Order.findById(orderId).populate('items.product');
+
+    if (!order) {
+      console.warn('❌ Order not found for ID:', orderId);
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found',
+      });
+    }
+
+    if (!order.paymentIntentId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Order does not contain a paymentIntentId',
+      });
+    }
+
+    if (order.paymentIntentId.toString() !== paymentIntentId.toString()) {
+      return res.status(400).json({
+        success: false,
+        message: 'PaymentIntent ID does not match the order',
+      });
+    }
+
+    if (order.status === 'completed') {
+      return res.json({
+        success: true,
+        message: 'Order already completed',
+      });
+    }
+
+    // ✅ Mark the order as completed
+    order.status = 'completed';
+    await order.save();
+
+    console.log('✅ Order completed:', order._id);
+    return res.json({
+      success: true,
+      message: 'Order processed and marked as completed',
+    });
+
+  } catch (error) {
+    console.error('❌ Process order error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to process order',
+      error: error.message,
+    });
+  }
+};
+
+
