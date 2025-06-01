@@ -1,5 +1,5 @@
 # clone repo
-git clone 
+git clone "https://github.com/Prap1/assesement-backend.git"
 cd directory
 
 # create .env file
