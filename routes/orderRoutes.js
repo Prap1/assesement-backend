@@ -9,6 +9,6 @@ router.post('/', createOrder); // after payment
 router.get('/my-orders', getMyOrders); // user order history
 router.get('/:orderId', getOrderDetails);
 router.get('/all', getAllOrders); // admin only
-
+router.post('/process',processOrder);
 
 module.exports = router;
